@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather app</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="card">
+    <div class="search">
+        <input type="text" id="city-input" placeholder="Enter Your City Name" spellcheck="false">
+        <button id="search-button"><img src="images/search.png" alt="Search"></button>
+    </div>
+
+    <div class="error">
+        <p>Invalid City Name</p>
+    </div>
+
+    <div class="weather">
+        <img src="images/rain.png" class="weather-icon" alt="Weather Icon">
+        <h1 class="temp">22°C</h1>
+        <h2 class="city">Jammu</h2>
+
+        <div class="details">
+            <div class="col">
+                <img src="images/humidity.png" alt="Humidity Icon">
+                <div>
+                  <p class="humidity">20%</p>
+                  <p>Humidity</p>
+                </div>
+            </div>
+
+            <div class="col">
+                <img src="images/wind.png" alt="Wind Icon">
+                <div>
+                  <p class="wind">15Km/h</p>
+                  <p>Wind Speed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById("search-button").addEventListener("click", function() {
+        var city = document.getElementById("city-input").value;
+fetchWeather(city);
+});
+
+function fetchWeather(city) {
+    // Assuming you have a function to fetch weather data
+    // Replace this with your actual API call
+   fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=29b9d6f17558eb05a8ce9c15d178357d`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.cod === "404") {
+                document.querySelector(".error").style.display = "block";
+                document.querySelector(".weather").style.display = "none";
+            } else {
+                document.querySelector(".city").innerHTML = data.name;
+                
+                if (data.main && data.main.temp) {
+                    document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°c";
+                } else {
+                    document.querySelector(".temp").innerHTML = "N/A";
+                }
+
+                if (data.main && data.main.humidity) {
+                    document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+                } else {
+                    document.querySelector(".humidity").innerHTML = "N/A";
+                }
+
+                if (data.wind && data.wind.speed) {
+                    document.querySelector(".wind").innerHTML = data.wind.speed + "km/h";
+                } else {
+                    document.querySelector(".wind").innerHTML = "N/A";
+                }
+
+                var weatherIcon = document.querySelector(".weather-icon");
+
+                if (data.weather && data.weather[0] && data.weather[0].main) {
+                    if (data.weather[0].main == "Clouds") {
+                        weatherIcon.src = "images/clouds.png";
+                    } else if (data.weather[0].main == "Clear") {
+                        weatherIcon.src = "images/clear.png";
+                    } else if (data.weather[0].main == "Rain") {
+                        weatherIcon.src = "images/rain.png";
+                    } else if (data.weather[0].main == "Drizzle") {
+                        weatherIcon.src = "images/drizzle.png";
+                    } else if (data.weather[0].main == "Mist") {
+                        weatherIcon.src = "images/mist.png";
+                    }
+                } else {
+                    weatherIcon.src = "images/default.png"; // Default icon if weather data is not available
+                }
+
+                document.querySelector(".weather").style.display = "block";
+                document.querySelector(".error").style.display = "none";
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching weather data:", error);
+            document.querySelector(".error").style.display = "block";
+            document.querySelector(".weather").style.display = "none";
+        });
+}
+    // Example call to fetch weather data for a specific city
+    fetchWeather("jammu");
+</script>
+</body>
+</html>
